@@ -3,6 +3,15 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
+if [[ "$1" != "" ]]; then
+    WIFINAME=$1    
+else
+    echo "Please provide wifi name as the first parameter"
+    exit
+fi
+
+echo "Provideed WIFI name is $WIFINAME"
+
 echo 'Initializing linux device'
 echo 'Creating access point/hot spot mode for wlan1...'
 sudo apt-get install dnsmasq
@@ -46,16 +55,49 @@ if [ $? -ne 0 ]; then
   exit
 fi
 echo "Testing done"
+echo "Checking if there is a service running"
+if [ -f /etc/hostapd.conf ] ; then
+ echo "Yes, turn it of..."
+ sudo systemctl stop hostapd-systemd
+ echo "Done"
+fi
+
 echo "Starting to configure access point settings"
 cat > /etc/hostapd.conf << EOL
 interface=wlan1
 driver=nl80211
-ssid=test_chip_ap
+ssid=$WIFINAME
 channel=1
 ctrl_interface=/var/run/hostapd
 EOL
 
+echo "Done"
+echo "Registering hostapd as a service..."
+cat > /lib/systemd/system/hostapd-systemd.service << EOL
+[Unit]
+Description=hostapd service
+Wants=network-manager.service
+After=network-manager.service
+Wants=module-init-tools.service
+After=module-init-tools.service
+ConditionPathExists=/etc/hostapd.conf
+
+[Service]
+ExecStart=/usr/sbin/hostapd /etc/hostapd.conf
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
+sudo update-rc.d hostapd disable
+sudo systemctl daemon-reload
+sudo systemctl enable hostapd-systemd
+
+echo "Done"
+
 echo "Starting access point"
-hostapd -B /etc/hostapd.conf
+sudo systemctl start hostapd-systemd
+systemctl status hostapd-systemd
+
 echo "Access point started"
 
