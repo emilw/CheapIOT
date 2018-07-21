@@ -3,6 +3,8 @@ var url = require('url');
 var fs = require('fs');
 var wifi = require('node-wifi');
 
+const devMode = 0;
+
 var writeSuccessfulResponse = function(res, data) {
     res.writeHead(200);
     res.write(data);
@@ -18,14 +20,22 @@ var writeBadRequestResponse = function(res, errorMessage) {
 var serveLandingPage = function(res) {
     const path = __dirname + '/index.html';
     console.log(path);
-    serveAsset(path, res);
+    serveAsset(path, res, (data) => {
+        data = data.replace(/172.20.0.1/g, "localhost:8081");
+        console.log(data);
+        return data;
+    });
 }
 
-var serveAsset = function(path, res) {
-    fs.readFile(path, function(err, data){
+var serveAsset = function(path, res, postLoadFunc) {
+    fs.readFile(path, "utf8", function(err, data){
         if(err) {
             writeBadRequestResponse(res, `Failed to read ${path}`);
         } else{
+            if(postLoadFunc != null && devMode == 1){
+                console.log("Hook defined, executing it...");
+                data = postLoadFunc(data);
+            }
             writeSuccessfulResponse(res, data);
         }
     });

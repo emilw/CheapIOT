@@ -1,9 +1,9 @@
 <html>
     <head>
         <link rel="stylesheet" href="http://localhost:8081/Assets/bootstrap.min.css">
-        <script src="http://localhost:8081/Assets/react.js"></script>
-        <script src="http://localhost:8081/Assets/react-dom.js"></script>
-        <script src="http://localhost:8081/Assets/babel.min.js" charset="utf-8"></script>
+        <script src="http://172.20.0.1/Assets/react.js"></script>
+        <script src="http://172.20.0.1/Assets/react-dom.js"></script>
+        <script src="http://172.20.0.1/Assets/babel.min.js" charset="utf-8"></script>
         <script type="text/babel">
             class SSIDForm extends React.Component {
                 constructor(props){
@@ -33,7 +33,7 @@
 
                 componentDidMount() {
 
-                    fetch("http://localhost:8081/api/current")
+                    fetch("http://172.20.0.1/api/current")
                     .then(currSSIDResponse => currSSIDResponse.json())
                     .then(
                         (SSIDData) => {
@@ -44,7 +44,7 @@
                         console.log("Current SSID loaded");
                         console.log(this.state.SSID);
 
-                        fetch("http://localhost:8081/api/scan")
+                        fetch("http://172.20.0.1/api/scan")
                         .then(availableWifisResponse => availableWifisResponse.json())
                         .then(
                             (availableWifisData) => {
