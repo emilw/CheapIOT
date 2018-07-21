@@ -101,3 +101,7 @@ systemctl status hostapd-systemd
 
 echo "Access point started"
 
+echo "Installing NodeJS and captive portal tools"
+curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash
+apt-get install -y nodejs
+echo "Done"
