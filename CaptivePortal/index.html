@@ -1,0 +1,115 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="http://localhost:8081/Assets/bootstrap.min.css">
+        <script src="http://localhost:8081/Assets/react.js"></script>
+        <script src="http://localhost:8081/Assets/react-dom.js"></script>
+        <script src="http://localhost:8081/Assets/babel.min.js" charset="utf-8"></script>
+        <script type="text/babel">
+            class SSIDForm extends React.Component {
+                constructor(props){
+                    super(props);
+                    this.state = {
+                        SSID : "",
+                        WPAKey : "",
+                        availableWifis: [{}]
+                    }
+
+                    this.handleSSIDChange = this.handleSSIDChange.bind(this);
+                    this.handleWPAKeyChange = this.handleWPAKeyChange.bind(this);
+                    this.handleOnSave = this.handleOnSave.bind(this);
+                }
+
+                handleSSIDChange(event) {
+                    this.setState({SSID: event.target.value});
+                }
+
+                handleWPAKeyChange(event) {
+                    this.setState({WPAKey: event.target.value});
+                }
+
+                handleOnSave(event) {
+                    alert(this.state.SSID);
+                }
+
+                componentDidMount() {
+
+                    fetch("http://localhost:8081/api/current")
+                    .then(currSSIDResponse => currSSIDResponse.json())
+                    .then(
+                        (SSIDData) => {
+                        this.setState({
+                            isLoaded: true,
+                            SSID: SSIDData
+                        });
+                        console.log("Current SSID loaded");
+                        console.log(this.state.SSID);
+
+                        fetch("http://localhost:8081/api/scan")
+                        .then(availableWifisResponse => availableWifisResponse.json())
+                        .then(
+                            (availableWifisData) => {
+                            this.setState({
+                                isLoaded: true,
+                                availableWifis: availableWifisData
+                            });
+                            console.log("Available wifis updated");
+                            console.log(this.state.availableWifis);
+                            },
+                            // Note: it's important to handle errors here
+                            // instead of a catch() block so that we don't swallow
+                            // exceptions from actual bugs in components.
+                            (error) => {
+                            this.setState({
+                                isLoaded: true,
+                                error
+                            });
+                        },
+                        (error) => {
+                        this.setState({
+                            isLoaded: true,
+                            error
+                        });
+                        }
+                    )})
+                }
+
+                render() {
+                    return (
+                        <div>
+                            <div>
+                                <h4>Please connect your device to your WiFi by providing the information bellow</h4>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="ssidInput">SSID Name</label>
+                                
+                                <select id="ssidInput" className="form-control" value={this.state.SSID} onChange={this.handleSSIDChange}>
+                                        {this.state.availableWifis.map(item => (
+                                            <option key={item.ssid}>
+                                            {item.ssid}
+                                            </option>
+                                        ))}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="wpaSecret">Provide the WPA secret</label>
+                                <input type="text" id="wpaSecret" className="form-control" value={this.state.WPAKey} onChange={this.handleWPAKeyChange} placeholder="Enter the WPA secret for the Wifi network provided above"/>
+                            </div>
+                            <div>
+                                <input type="button" value="Save" onClick={this.handleOnSave} />
+                            </div>
+                        </div>
+                    );
+                }
+            }
+            console.log("hello1");
+            ReactDOM.render(
+                <SSIDForm />,
+                document.getElementById('inputSection')
+                );    
+        </script>
+    </head>
+    <body>
+        <div id="inputSection">
+        </div>
+    </body>
+</html>

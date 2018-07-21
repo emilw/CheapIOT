@@ -1,0 +1,14 @@
+{
+  "name": "captive-portal",
+  "version": "1.0.0",
+  "description": "The captive portal for the Cheap IOT for allowing the user to setup the Wifi connection",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-wifi": "^2.0.4"
+  }
+}
