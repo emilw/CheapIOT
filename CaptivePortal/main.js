@@ -17,14 +17,16 @@ var writeBadRequestResponse = function(res, errorMessage) {
     res.end();
 }
 
+var devHostNameReplaceHook = function(data) {
+    data = data.replace(/172.20.0.1/g, "localhost:8081");
+    console.log(data);
+    return data;
+}
+
 var serveLandingPage = function(res) {
     const path = __dirname + '/index.html';
     console.log(path);
-    serveAsset(path, res, (data) => {
-        data = data.replace(/172.20.0.1/g, "localhost:8081");
-        console.log(data);
-        return data;
-    });
+    serveAsset(path, res, devHostNameReplaceHook);
 }
 
 var serveAsset = function(path, res, postLoadFunc) {
