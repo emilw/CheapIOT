@@ -32,7 +32,7 @@ var serveLandingPage = function(res) {
 var serveAsset = function(path, res, postLoadFunc) {
     fs.readFile(path, "utf8", function(err, data){
         if(err) {
-            writeBadRequestResponse(res, `Failed to read ${path}`);
+            writeBadRequestResponse(res, "Failed to read " + path);
         } else{
             if(postLoadFunc != null && devMode == 1){
                 console.log("Hook defined, executing it...");
@@ -95,4 +95,5 @@ var server = http.createServer(function(req, res) {
     } else {
         serveLandingPage(res);
     }
-}).listen(8081, '172.20.0.1'); //localhost
+}).listen(80, '172.20.0.1');
+// }).listen(8081, 'localhost');
