@@ -74,6 +74,8 @@ wifi.init({
     iface : "wlan0"
 });
 
+console.log(__dirname);
+
 var server = http.createServer(function(req, res) {
     pathName= url.parse(req.url).pathname
     console.log(req.method);
@@ -82,7 +84,7 @@ var server = http.createServer(function(req, res) {
     if(pathName.endsWith('.js') || pathName.endsWith('.html')
         || pathName.endsWith('.css')) {
         console.log(pathName[0]);
-        pathName = pathName.replace(/^\/+/g, '');
+        pathName = __dirname + "/" + pathName.replace(/^\/+/g, '');
         
         console.log(pathName);
         serveAsset(pathName, res);

@@ -101,7 +101,44 @@ systemctl status hostapd-systemd
 
 echo "Access point started"
 
-echo "Installing NodeJS and captive portal tools"
-curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash
+echo "Checking if node is installed and the nodesource.com repo..."
+if which node > /dev/null
+ then
+  echo "...Package source from nodesource.com is added already"
+ else
+  echo "...Adding package source from nodesource.com"
+  curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash
+  echo "..Done"
+fi
+
 apt-get install -y nodejs
+
+echo "Scheduling captive portal as a service"
+cat > /lib/systemd/system/cheap_iot_captiveportal.service << EOL
+[Unit]
+Description=Captive portal for embedded device
+Wants=network-manager.service
+After=network-manager.service
+Wants=module-init-tools.service
+After=module-init-tools.service
+ConditionPathExists=/home/chip/Repos/CheapIOT/CaptivePortal/main.js
+
+[Service]
+ExecStart=/usr/bin/node /home/chip/Repos/CheapIOT/CaptivePortal/main.js
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
+echo "Done"
+
+echo "Activating captive portal service.."
+systemctl daemon-reload
+systemctl enable cheap_iot_captiveportal
+
+echo "Done"
+
+echo "Starting service..."
+systemctl start cheap_iot_captiveportal
+systemctl status cheap_iot_captiveportal
 echo "Done"
